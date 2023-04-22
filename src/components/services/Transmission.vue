@@ -51,7 +51,7 @@ export default {
   props: { item: Object },
   components: { Generic },
   // Properties for download, upload, torrent count and errors.
-  data: () => ({ dl: null, ul: null, count: null, error: null }),
+  data: () => ({ dl: null, ul: null, count: null, error: null, transmissionSessionId: null }),
   // Computed properties for the rate labels.
   computed: {
     downRate: function () {
@@ -78,7 +78,7 @@ export default {
     // Perform a call to the JSON-RPC service and parse the response
     // as JSON and stats, which is then returned.
     getStats: async function () {
-      const headers = { "Content-Type": "application/json" };
+      const headers = { "Content-Type": "text/plain" };
 
       if (this.item.username && this.item.password) {
         headers[
@@ -86,10 +86,20 @@ export default {
         ] = `${this.item.username}:${this.item.password}`;
       }
 
+      if (this.transmissionSessionId === null) {
+          await fetch(`${this.item.xmlrpc.replace(/\/$/, "")}/transmission/rpc`,
+              {method: "GET", headers})
+              .then((response) => {
+                  this.transmissionSessionId = response.headers["X-Transmission-Session-Id"]
+              })
+      }
+      headers["X-Transmission-Session-Id"] = this.transmissionSessionId
+
+
       return fetch(`${this.item.xmlrpc.replace(/\/$/, "")}/transmission/rpc`, {
         method: "POST",
         headers,
-        body: `{method:"session-stats"}`,
+        body: `{"method":"session-stats"}`,
       })
         .then((response) => {
           if (!response.ok) {
@@ -98,7 +108,7 @@ export default {
           return response.text();
         })
         .then((text) =>
-          Promise.resolve(new JSON().parse(text)["arguments"])
+          Promise.resolve(JSON.parse(text)["arguments"])
         )
         .then((json) => {
             this.dl = json["downloadSpeed"]
