@@ -80,23 +80,24 @@ export default {
     getStats: async function () {
       const headers = { "Content-Type": "text/plain" };
 
-      if (this.item.username && this.item.password) {
+      if (this.item.password) {
         headers[
           "Authorization"
-        ] = `${this.item.username}:${this.item.password}`;
+        ] = `Basic ${this.item.password}`;
       }
 
       if (this.transmissionSessionId === null) {
-          await fetch(`${this.item.xmlrpc.replace(/\/$/, "")}/transmission/rpc`,
-              {method: "GET", headers})
-              .then((response) => {
-                  this.transmissionSessionId = response.headers["X-Transmission-Session-Id"]
-              })
+          await fetch(`${this.item.xmlrpc.replace(/\/$/, "")}/rpc`,
+              {method: "GET", headers}).then((response) => {
+			if(!response.ok) {
+				this.transmissionSessionId = response.headers.get("x-transmission-session-id")	
+			}
+		})
       }
       headers["X-Transmission-Session-Id"] = this.transmissionSessionId
 
 
-      return fetch(`${this.item.xmlrpc.replace(/\/$/, "")}/transmission/rpc`, {
+      return fetch(`${this.item.xmlrpc.replace(/\/$/, "")}/rpc`, {
         method: "POST",
         headers,
         body: `{"method":"session-stats"}`,
