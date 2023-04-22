@@ -26,6 +26,7 @@ within Homer:
   - [Healthchecks](#healthchecks)
   - [Proxmox](#proxmox)
   - [rTorrent](#rtorrent)
+  - [Transmission](#transmission)
   - [qBittorrent](#qbittorrent)
   - [CopyToClipboard](#copy-to-clipboard)
   - [Speedtest Tracker](#SpeedtestTracker)
@@ -259,6 +260,24 @@ Two lines are needed in the config.yml :
 
 The url must be the root url of the Healthchecks application.
 The Healthchecks API key can be found in Settings > API Access > API key (read-only). The key is needed to access Healthchecks API.
+
+## Transmission
+
+This service displays the global upload and download rates, as well as the number of torrents
+listed in Transmission. The service communicates with the rTorrent JSON-RPC interface which needs
+to be accessible from the browser. Make sure the correct CORS-settings are applied. Examples for various
+servers can be found at https://enable-cors.org/server.html.
+
+```yaml
+- name: "Transmission"
+  logo: "assets/tools/sample.png"
+  url: "http://192.168.0.151:9091" # Your Transmission web UI
+  xmlrpc: "http://192.168.0.151:9091" # Reverse proxy for Transmission's JSON-RPC.
+  type: "Transmission"
+  rateInterval: 5000 # Interval for updating stats.
+  username: "username" # Username for logging into Transmission (if applicable).
+  password: "password" # Password for logging into Transmission (if applicable).
+```
 
 ## rTorrent
 
