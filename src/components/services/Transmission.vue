@@ -67,7 +67,7 @@ export default {
     const interval = parseInt(this.item.interval, 10) || 0;
 
     if (interval > 0) {
-      setInterval(() => this.getStats(), rateInterval);
+      setInterval(() => this.getStats(), interval);
     }
 
     // Fetch the initial values.
